@@ -10,7 +10,7 @@ class Database:
     def _initialize_db(self):
         self._cursor.execute("CREATE TABLE IF NOT EXISTS location (id INTEGER PRIMARY KEY, longitude REAL, latitude REAL)")
         self._cursor.execute("INSERT INTO location (longitude, latitude) VALUES (0.0, 0.0)")
-        self._cursor.execute("INSERT INTO location (longitude, latitude) VALUES ('0.0', 0.0)")
+        self._cursor.execute("INSERT INTO location (longitude, latitude) VALUES (0.0, 0.0)")
 
         self._conn.commit()
 
@@ -18,7 +18,7 @@ class Database:
         id = (id,)
         self._cursor.execute(f"SELECT * FROM location WHERE id=?", id)
         result = self._cursor.fetchone()
-        
+
         return Location(id=result[0], longitude=result[1], latitude=result[2])
 
     def update_location(self, id: int, location: Location):
