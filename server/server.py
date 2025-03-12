@@ -15,7 +15,9 @@ async def websocket_endpoint_logview(websocket: WebSocket):
     await manager.send_personal_message("Connection Established.", websocket)
 
     # TODO Ensure number of connections gets updated when device connnects and disconnects from server
-    await manager.send_personal_message(f"No. Connections: {len(manager.active_connections)}", websocket)
+    await manager.send_personal_message(
+        f"No. Connections: {len(manager.active_connections)}", websocket
+    )
 
     try:
         while True:
@@ -36,6 +38,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 await handle_message(data, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
 
 async def handle_message(data: str, sender: WebSocket):
     if "PING" in data:
