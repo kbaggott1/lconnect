@@ -37,7 +37,7 @@ async def produce():
 
 
 async def consume(message: str):
-    print(f"\nServer: {message}\nSend to server: ", end="")
+    print(f"Server: {message}")
 
 
 async def main():

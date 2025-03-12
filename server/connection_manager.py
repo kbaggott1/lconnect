@@ -1,4 +1,5 @@
 from fastapi import WebSocket
+from starlette.websockets import WebSocketState
 
 MAX_CONNECTIONS = 2
 
@@ -13,6 +14,10 @@ class ConnectionManager:
         self.log_viewer_connections.append(websocket)
 
     async def connect(self, websocket: WebSocket):
+        for connection in self.active_connections[:]:
+            if connection.client_state == WebSocketState.DISCONNECTED:
+                self.active_connections.remove(connection)
+
         if len(self.active_connections) < MAX_CONNECTIONS:
             await websocket.accept()
             self.active_connections.append(websocket)
