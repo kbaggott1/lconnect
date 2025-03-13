@@ -34,7 +34,9 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            if len(manager.active_connections) == NUMBER_OF_WATCHES:
+            if len(manager.active_connections) == NUMBER_OF_WATCHES: 
+                # TODO individual devices should be able to update their location even
+                # if other device is not connected to server
                 await handle_message(data, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
