@@ -34,18 +34,19 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            if len(manager.active_connections) == NUMBER_OF_WATCHES: 
-                # TODO individual devices should be able to update their location even
-                # if other device is not connected to server
-                await handle_message(data, websocket)
+            await handle_message(data, websocket)
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
 
 async def handle_message(data: str, sender: WebSocket):
+    # TODO Messages sent back to other device like UPDATE_LOCATION and LOCATION need better names
     if "PING" in data:
         await manager.log_broadcast(f"PING sent from {sender.client}")
-        await manager.send_personal_message("BUZZ", get_other_client(sender))
+
+        if len(manager.active_connections) == NUMBER_OF_WATCHES:
+            await manager.send_personal_message("BUZZ", get_other_client(sender))
 
     if "UPDATE_LOCATION" in data:
         cords = data.split(" ")[1:]
@@ -57,19 +58,21 @@ async def handle_message(data: str, sender: WebSocket):
 
             await manager.log_broadcast(f"{data} sent from {sender.client}")
 
-            await manager.send_personal_message(
-                f"LOCATION_UPDATE {watches[sender].latitude} {watches[sender].longitude}",
-                get_other_client(sender),
-            )
+            if len(manager.active_connections) == NUMBER_OF_WATCHES:
+                await manager.send_personal_message(
+                    f"UPDATE_LOCATION {watches[sender].latitude} {watches[sender].longitude}",
+                    get_other_client(sender),
+                )
 
         except ValueError as e:
             print(f"Could not update location: {e}")
 
     if "GET_LOCATION" in data:
-        await manager.send_personal_message(
-            f"LOCATION_GET {watches[get_other_client(sender)].latitude} {watches[get_other_client(sender)].longitude}",
-            sender,
-        )
+        if len(manager.active_connections) == NUMBER_OF_WATCHES:
+            await manager.send_personal_message(
+                f"LOCATION {watches[get_other_client(sender)].latitude} {watches[get_other_client(sender)].longitude}",
+                sender,
+            )
 
 
 def set_watches(websocket: WebSocket):
