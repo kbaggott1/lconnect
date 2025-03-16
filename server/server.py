@@ -1,13 +1,13 @@
 from location import Location
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from connection_manager import ConnectionManager
+import asyncio
 
 NUMBER_OF_WATCHES = 2
 
 watches: dict[WebSocket, Location] = {}
-app = FastAPI()
+app = FastAPI(docs_url=None)
 manager = ConnectionManager()
-
 
 @app.websocket("/logview")
 async def websocket_endpoint_logview(websocket: WebSocket):
@@ -15,6 +15,8 @@ async def websocket_endpoint_logview(websocket: WebSocket):
     await manager.send_personal_message("Connection Established.", websocket)
 
     # TODO Ensure number of connections gets updated when device connnects and disconnects from server
+
+    await manager.check_connections()
     await manager.send_personal_message(
         f"No. Connections: {len(manager.active_connections)}", websocket
     )

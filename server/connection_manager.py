@@ -1,5 +1,6 @@
 from fastapi import WebSocket
 from starlette.websockets import WebSocketState
+import asyncio
 
 MAX_CONNECTIONS = 2
 
@@ -42,3 +43,12 @@ class ConnectionManager:
             except Exception as e:
                 print(f"Error sending message to log viewer: {e}")
                 self.log_viewer_connections.remove(connection)
+
+    # async def check_connections(self):
+    #     while True:
+    #         asyncio.sleep(5)
+    #         for conn in self.active_connections:
+    #             if conn.client_state == WebSocketState.DISCONNECTED:
+    #                 self.disconnect(conn)
+            
+    #         self.log_broadcast(f"Active Connections: {len(self.active_connections)}")
