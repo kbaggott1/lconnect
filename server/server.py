@@ -9,17 +9,13 @@ watches: dict[WebSocket, Location] = {}
 app = FastAPI(docs_url=None)
 manager = ConnectionManager()
 
+
 @app.websocket("/logview")
 async def websocket_endpoint_logview(websocket: WebSocket):
     await manager.connect_logview(websocket)
     await manager.send_personal_message("Connection Established.", websocket)
 
-    # TODO Ensure number of connections gets updated when device connnects and disconnects from server
-
-    await manager.check_connections()
-    await manager.send_personal_message(
-        f"No. Connections: {len(manager.active_connections)}", websocket
-    )
+    await manager.send_personal_message(f"No. Connections: {len(manager.active_connections)}", websocket)
 
     try:
         while True:
@@ -43,7 +39,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 async def handle_message(data: str, sender: WebSocket):
-    # TODO Messages sent back to other device like UPDATE_LOCATION and LOCATION need better names
     if "PING" in data:
         await manager.log_broadcast(f"PING sent from {sender.client}")
 
@@ -62,7 +57,7 @@ async def handle_message(data: str, sender: WebSocket):
 
             if len(manager.active_connections) == NUMBER_OF_WATCHES:
                 await manager.send_personal_message(
-                    f"UPDATE_LOCATION {watches[sender].latitude} {watches[sender].longitude}",
+                    f"LOCATION_UPDATED {watches[sender].latitude} {watches[sender].longitude}",
                     get_other_client(sender),
                 )
 
